@@ -1,33 +1,37 @@
 <template>
   <div class="search-bar">
-    <input type="text" name="searchBar" v-model.trim="query" />
-    <div :class="['preloader', { ['visible']: isLoading }]"></div>
+    <input type="text" name="searchBar" v-model="query" />
+    <div class="preloader" :class="[{ ['visible']: props.isLoading }]"></div>
   </div>
 </template>
 
 <script setup>
-import { defineEmits, defineProps, ref, watch } from "vue";
-let timeout = null;
-const INPUT_HANDLE_DELAY = 300;
+import { defineEmits, defineProps, computed, onBeforeMount } from "vue";
+import { preloadIMG } from "@/helpers/preloadIMG";
+
+onBeforeMount(() =>
+  preloadIMG("http://leonardo.osnova.io/7ad70ae1-c5c1-54e9-b1b8-465909802d9f/")
+);
 
 const emit = defineEmits(["update:modelValue"]);
 const props = defineProps({
-  modelValue: {
-    type: String,
-    default: "",
-  },
   isLoading: {
     type: Boolean,
     default: false,
   },
+  modelValue: {
+    type: String,
+    default: "",
+  },
 });
-const query = ref(props.modelValue);
 
-watch(query, (nv) => {
-  clearTimeout(timeout);
-  timeout = setTimeout(() => {
-    emit("update:modelValue", nv);
-  }, INPUT_HANDLE_DELAY);
+const query = computed({
+  get() {
+    return props.modelValue;
+  },
+  set(newValue) {
+    emit("update:modelValue", newValue);
+  },
 });
 </script>
 

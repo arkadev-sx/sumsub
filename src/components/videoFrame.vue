@@ -2,25 +2,27 @@
   <div class="video-frame">
     <video
       :src="props.source"
-      loop
-      autoplay
       @canplaythrough.once="fire"
+      autoplay
+      playsinline
+      loop
     ></video>
   </div>
 </template>
 
 <script setup>
 import { defineProps, defineEmits } from "vue";
-
+const emit = defineEmits(["ready"]);
 const props = defineProps({
   source: {
     type: String,
     default: "",
   },
 });
-const emit = defineEmits(["ready"]);
 
-const fire = () => emit("ready");
+const fire = () => {
+  emit("ready");
+};
 </script>
 
 <style scoped lang="stylus">
@@ -38,6 +40,10 @@ const fire = () => emit("ready");
     left: 50%;
     transform: translate(-50%, -50%);
     pointer-events: none;
+  }
+
+  video::-webkit-media-controls {
+    display: none;
   }
 }
 </style>

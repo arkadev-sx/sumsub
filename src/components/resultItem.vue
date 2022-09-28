@@ -1,10 +1,14 @@
 <template>
-  <div class="item" @click="onItemClick">
+  <button
+    class="item"
+    :class="[{ ['ready']: itemIsReady }]"
+    v-on:click="onItemClick"
+  >
     <div class="content-box">
-      <component :is="frame" :source="source" @ready="hidePreloader" />
+      <component :is="frame" :source="source" @ready="unlockItem" />
     </div>
-    <div :class="['preloader', { ['visible']: showPlaceholder }]"></div>
-  </div>
+    <div class="preloader" :class="[{ ['visible']: !itemIsReady }]"></div>
+  </button>
 </template>
 
 <script setup>
@@ -14,7 +18,11 @@ import {
   computed,
   defineAsyncComponent,
   ref,
+  onBeforeMount,
 } from "vue";
+import { preloadIMG } from "@/helpers/preloadIMG";
+import useClipboard from "vue-clipboard3";
+const { toClipboard } = useClipboard();
 const props = defineProps({
   unit: {
     type: Object,
@@ -28,11 +36,14 @@ const props = defineProps({
   },
 });
 const emit = defineEmits(["click"]);
-const hidePreloader = () => {
-  showPlaceholder.value = false;
+onBeforeMount(() => {
+  preloadIMG("http://leonardo.osnova.io/63a39c16-d35d-560e-a6bd-2675159bbaf9/");
+});
+const unlockItem = () => {
+  itemIsReady.value = true;
 };
 
-const showPlaceholder = ref(true);
+const itemIsReady = ref(false);
 
 const frame = computed(() => {
   return props.perfomanceMode
@@ -45,10 +56,13 @@ const source = computed(() => {
     : props.unit.reservePreviewURL;
 });
 
-const onItemClick = () => {
-  navigator.clipboard.writeText(props.unit.originURL);
-
-  emit("click");
+const onItemClick = async () => {
+  try {
+    await toClipboard(props.unit.originURL);
+    emit("click");
+  } catch (e) {
+    console.error(e);
+  }
 };
 </script>
 <style lang="stylus" scoped>
@@ -58,9 +72,19 @@ const onItemClick = () => {
   background: #222;
   color: white;
   position: relative;
+  transition: all 0.25s ease;
+  pointer-events: none;
   border-radius: 8px;
   overflow: hidden;
-  transition: all 0.25s ease;
+  user-select: none;
+  outline: transparent;
+  appearance: none;
+  border: none;
+  cursor: pointer;
+
+  &.ready {
+    pointer-events: unset;
+  }
 
   &:hover {
     transform: scale(0.95);
@@ -84,11 +108,14 @@ const onItemClick = () => {
   position: absolute;
   top: 0;
   left: 0;
+  border-radius: inherit;
+  pointer-events: none;
 }
 
 .content-box {
   z-index: 1;
-  cursor: pointer;
+  border-radius: 8px;
+  overflow: hidden;
 }
 
 .preloader {
@@ -97,7 +124,6 @@ const onItemClick = () => {
   transition: opacity 0.25s ease;
   background: url('http://leonardo.osnova.io/63a39c16-d35d-560e-a6bd-2675159bbaf9/') 50% 50% / 100% auto no-repeat;
   opacity: 0;
-  pointer-events: none;
 
   &.visible {
     opacity: 1;

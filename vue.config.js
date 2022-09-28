@@ -1,4 +1,4 @@
-const { defineConfig } = require('@vue/cli-service')
+const { defineConfig } = require("@vue/cli-service");
 
 module.exports = defineConfig({
   transpileDependencies: true,
@@ -10,17 +10,10 @@ module.exports = defineConfig({
   css: {
     sourceMap: true,
     loaderOptions: {
-      stylus: {
-        // additionalData:  '@import "../../constants.styl";',
-      },
+      stylus: {},
     },
   },
 
-  pluginOptions: {
-    svgLoader: {
-      svgo: {
-        plugins: [],
-      },
-    },
-  },
-})
+  pluginOptions: {},
+  publicPath: ''
+});
