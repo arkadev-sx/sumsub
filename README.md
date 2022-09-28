@@ -10,7 +10,7 @@
 
 - vue-clipboard3 - потому что я хотел через navigator.clipboard.writeText, а не document.execcomand, однако сафари не согласился. Ультимативное решение, в котором я уверен для всех современных браузеров.
 
--lodash - ради debounce
+- lodash - ради debounce
 
 - axios - для запросов к api
 
